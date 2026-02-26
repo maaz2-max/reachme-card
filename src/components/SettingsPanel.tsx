@@ -17,10 +17,11 @@ const SettingsPanel = ({ open, onClose, onToggle, currentState }: SettingsPanelP
   const handleToggle = async () => {
     setLoading(true);
     const newState = !currentState;
+    // @ts-ignore - table types not yet regenerated
     await supabase
-      .from("vehicle_settings" as any)
-      .update({ show_details: newState, updated_at: new Date().toISOString() } as any)
-      .eq("id" as any, 1);
+      .from("vehicle_settings")
+      .update({ show_details: newState, updated_at: new Date().toISOString() })
+      .eq("id", 1);
     onToggle(newState);
     setLoading(false);
   };
