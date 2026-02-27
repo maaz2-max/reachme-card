@@ -3,6 +3,7 @@ import { Phone, MessageCircle, MapPin, Mail, Car, Shield, ChevronRight, Sparkles
 import logo from "@/assets/reach-logo.png";
 import LoadingScreen from "@/components/LoadingScreen";
 import WarningModal from "@/components/WarningModal";
+import { FooterContent } from "@/components/FooterContent";
 
 type ModalAction = { type: "call" | "whatsapp"; number: string } | null;
 
@@ -131,12 +132,8 @@ const Index = () => {
         </Section>
       </main>
 
-      {/* Footer */}
-      <footer className="py-6" style={{ background: `linear-gradient(180deg, hsl(220 65% 15%), hsl(220 65% 10%))` }}>
-        <p className="text-center text-xs font-medium" style={{ color: "hsl(0 0% 100% / 0.5)" }}>
-          © 2026 Registered REACH.MME
-        </p>
-      </footer>
+      {/* Footer with Preferences */}
+      <FooterContent />
 
       <WarningModal
         open={!!modalAction}
