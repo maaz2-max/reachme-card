@@ -2,14 +2,21 @@ import { useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { PreferenceModal } from './PreferenceModal';
 import { EmergencyContacts } from './EmergencyContacts';
-import { ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, AlertCircle, Clock } from 'lucide-react';
 import { usePreferences } from '@/hooks/usePreferences';
 
 export const FooterContent = () => {
   const [expanded, setExpanded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [changingTo, setChangingTo] = useState<'on' | 'off'>('on');
-  const { preferences, verifyPin, savePreferences } = usePreferences();
+  const { 
+    preferences, 
+    verifyPin, 
+    savePreferences, 
+    isAutoLogoutActive, 
+    autoLogoutCountdown,
+    cancelAutoLogout 
+  } = usePreferences();
 
   if (!preferences) {
     return null;
@@ -29,11 +36,35 @@ export const FooterContent = () => {
   };
 
   const getMessage = () => {
+    if (isAutoLogoutActive && autoLogoutCountdown > 0) {
+      return (
+        <div className="text-sm text-gray-600 mt-2 p-3 bg-red-50 rounded border border-red-200 animate-pulse">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-red-800">Auto-logout in {autoLogoutCountdown}s</p>
+              <p className="text-xs text-red-700 mt-1">Details will be hidden automatically</p>
+            </div>
+            <button
+              onClick={cancelAutoLogout}
+              className="ml-2 px-2 py-1 bg-red-200 hover:bg-red-300 text-red-800 text-xs font-medium rounded transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
     if (!preferences.showDetails) {
       return (
-        <div className="text-sm text-gray-600 mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
-          <p className="font-medium">Details are currently hidden</p>
-          <p>The user may be driving or not in use. Turn ON to show details.</p>
+        <div className="text-sm text-gray-600 mt-2 p-3 bg-yellow-50 rounded border border-yellow-200">
+          <div className="flex items-start gap-2">
+            <Clock className="w-4 h-4 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="font-medium text-yellow-800">Details are currently hidden</p>
+              <p className="text-xs text-yellow-700 mt-1">The user may be driving or not in use. Turn ON to show details.</p>
+            </div>
+          </div>
         </div>
       );
     }

@@ -1,15 +1,17 @@
 import { useState, useCallback } from "react";
-import { Phone, MessageCircle, MapPin, Mail, Car, Shield, ChevronRight, Sparkles } from "lucide-react";
+import { Phone, MessageCircle, MapPin, Mail, Car, Shield, ChevronRight, Sparkles, Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/reach-logo.png";
 import LoadingScreen from "@/components/LoadingScreen";
 import WarningModal from "@/components/WarningModal";
 import { FooterContent } from "@/components/FooterContent";
+import { usePreferences } from "@/hooks/usePreferences";
 
 type ModalAction = { type: "call" | "whatsapp"; number: string } | null;
 
 const Index = () => {
   const [loading, setLoading] = useState(true);
   const [modalAction, setModalAction] = useState<ModalAction>(null);
+  const { preferences } = usePreferences();
 
   const handleContinue = useCallback(() => {
     if (!modalAction) return;
@@ -59,60 +61,81 @@ const Index = () => {
         </Section>
 
         {/* Primary Contact */}
-        <Section delay={1}>
-          <SectionTitle>Primary Number</SectionTitle>
-          <div className="auto-card p-5">
-            <p className="text-center text-base font-semibold tracking-[0.2em] text-foreground">+91 ******5584</p>
-            <ContactButtons
-              onCall={() => setModalAction({ type: "call", number: "+918951225584" })}
-              onWhatsApp={() => setModalAction({ type: "whatsapp", number: "+918951225584" })}
-            />
-          </div>
-        </Section>
+        {preferences?.showDetails && (
+          <Section delay={1}>
+            <SectionTitle>Primary Number</SectionTitle>
+            <div className="auto-card p-5">
+              <p className="text-center text-base font-semibold tracking-[0.2em] text-foreground">+91 ******5584</p>
+              <ContactButtons
+                onCall={() => setModalAction({ type: "call", number: "+918951225584" })}
+                onWhatsApp={() => setModalAction({ type: "whatsapp", number: "+918951225584" })}
+              />
+            </div>
+          </Section>
+        )}
 
         {/* Alternate Contact */}
-        <Section delay={2}>
-          <SectionTitle>Alternate Number</SectionTitle>
-          <div className="auto-card p-5">
-            <p className="text-center text-base font-semibold tracking-[0.2em] text-foreground">+91 ******7067</p>
-            <ContactButtons
-              onCall={() => setModalAction({ type: "call", number: "+919108167067" })}
-              onWhatsApp={() => setModalAction({ type: "whatsapp", number: "+919108167067" })}
-            />
-          </div>
-        </Section>
+        {preferences?.showDetails && (
+          <Section delay={2}>
+            <SectionTitle>Alternate Number</SectionTitle>
+            <div className="auto-card p-5">
+              <p className="text-center text-base font-semibold tracking-[0.2em] text-foreground">+91 ******7067</p>
+              <ContactButtons
+                onCall={() => setModalAction({ type: "call", number: "+919108167067" })}
+                onWhatsApp={() => setModalAction({ type: "whatsapp", number: "+919108167067" })}
+              />
+            </div>
+          </Section>
+        )}
 
         {/* Location */}
-        <Section delay={3}>
-          <SectionTitle>Location</SectionTitle>
-          <div className="auto-card p-5">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <MapPin size={14} className="text-muted-foreground" />
-              <p className="text-sm text-muted-foreground text-center leading-relaxed">
-                Amar Layout, Bangalore, Karnataka
-              </p>
+        {preferences?.showDetails && (
+          <Section delay={3}>
+            <SectionTitle>Location</SectionTitle>
+            <div className="auto-card p-5">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <MapPin size={14} className="text-muted-foreground" />
+                <p className="text-sm text-muted-foreground text-center leading-relaxed">
+                  Amar Layout, Bangalore, Karnataka
+                </p>
+              </div>
+              <p className="text-xs text-muted-foreground/60 text-center">560045, India</p>
+              <div className="mt-4 flex justify-center">
+                <button
+                  onClick={() =>
+                    window.open(
+                      "https://www.google.com/maps/search/Amar+Layout+Bangalore+Karnataka+560045+India",
+                      "_blank"
+                    )
+                  }
+                  className="btn-3d btn-3d-call flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-semibold"
+                >
+                  <MapPin size={16} />
+                  Show on Map
+                  <ChevronRight size={14} className="opacity-60" />
+                </button>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground/60 text-center">560045, India</p>
-            <div className="mt-4 flex justify-center">
-              <button
-                onClick={() =>
-                  window.open(
-                    "https://www.google.com/maps/search/Amar+Layout+Bangalore+Karnataka+560045+India",
-                    "_blank"
-                  )
-                }
-                className="btn-3d btn-3d-call flex items-center gap-2 rounded-2xl px-6 py-3 text-sm font-semibold"
-              >
-                <MapPin size={16} />
-                Show on Map
-                <ChevronRight size={14} className="opacity-60" />
-              </button>
+          </Section>
+        )}
+
+        {/* Details Hidden Message */}
+        {!preferences?.showDetails && (
+          <Section delay={4}>
+            <div className="auto-card-navy p-6 flex flex-col items-center justify-center text-center space-y-3">
+              <EyeOff size={28} className="opacity-60" />
+              <div>
+                <p className="text-sm font-medium opacity-90">Contact Details Hidden</p>
+                <p className="text-xs opacity-70 mt-1">
+                  The driver may be driving or the vehicle is not in use
+                </p>
+              </div>
             </div>
-          </div>
-        </Section>
+          </Section>
+        )}
 
         {/* Custom Sticker CTA */}
-        <Section delay={4}>
+        <Section delay={preferences?.showDetails ? 5 : 4}>
           <div className="auto-card-navy p-6 animate-glow-pulse">
             <div className="flex items-center justify-center gap-2 mb-1">
               <Sparkles size={14} className="opacity-70" />

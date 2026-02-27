@@ -3,16 +3,32 @@ import { supabase } from '@/integrations/supabase/client';
 
 const DEFAULT_PIN = '26112002';
 const DEVICE_KEY_STORAGE = 'reachme_device_key';
+const AUTO_LOGOUT_DELAY = 60000; // 60 seconds
 
 export interface UserPreferences {
   showDetails: boolean;
   userKey: string;
 }
 
-export const usePreferences = () => {
+export interface UsePreferencesReturn {
+  preferences: UserPreferences | null;
+  loading: boolean;
+  error: string | null;
+  savePreferences: (showDetails: boolean) => Promise<void>;
+  verifyPin: (pin: string) => boolean;
+  isAutoLogoutActive: boolean;
+  autoLogoutCountdown: number;
+  cancelAutoLogout: () => void;
+}
+
+export const usePreferences = (): UsePreferencesReturn => {
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAutoLogoutActive, setIsAutoLogoutActive] = useState(false);
+  const [autoLogoutCountdown, setAutoLogoutCountdown] = useState(0);
+  const [autoLogoutTimer, setAutoLogoutTimer] = useState<NodeJS.Timeout | null>(null);
+  const [countdownTimer, setCountdownTimer] = useState<NodeJS.Timeout | null>(null);
 
   // Generate or retrieve device key
   const getDeviceKey = () => {
@@ -59,11 +75,55 @@ export const usePreferences = () => {
     }
   };
 
-  // Save preferences to Supabase
+  // Cancel auto logout
+  const cancelAutoLogout = () => {
+    if (autoLogoutTimer) clearTimeout(autoLogoutTimer);
+    if (countdownTimer) clearInterval(countdownTimer);
+    setIsAutoLogoutActive(false);
+    setAutoLogoutCountdown(0);
+  };
+
+  // Save preferences to Supabase with immediate UI update
   const savePreferences = async (showDetails: boolean) => {
     try {
+      // Immediately update UI
       const deviceKey = getDeviceKey();
-      
+      setPreferences({
+        showDetails,
+        userKey: deviceKey,
+      });
+      setError(null);
+
+      // If turning OFF, start auto logout timer
+      if (!showDetails) {
+        setIsAutoLogoutActive(true);
+        setAutoLogoutCountdown(AUTO_LOGOUT_DELAY / 1000); // Convert to seconds
+
+        // Start countdown timer
+        const countdown = setInterval(() => {
+          setAutoLogoutCountdown(prev => {
+            if (prev <= 1) {
+              clearInterval(countdown);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+        setCountdownTimer(countdown);
+
+        // Set auto logout timeout
+        const timer = setTimeout(() => {
+          setPreferences({
+            showDetails: true,
+            userKey: deviceKey,
+          });
+          setIsAutoLogoutActive(false);
+          clearInterval(countdown);
+        }, AUTO_LOGOUT_DELAY);
+        setAutoLogoutTimer(timer);
+      }
+
+      // Save to Supabase in background
       const { error: upsertError } = await supabase
         .from('user_preferences')
         .upsert(
@@ -75,12 +135,6 @@ export const usePreferences = () => {
         );
 
       if (upsertError) throw upsertError;
-
-      setPreferences({
-        showDetails,
-        userKey: deviceKey,
-      });
-      setError(null);
     } catch (err) {
       console.error('[v0] Error saving preferences:', err);
       setError(err instanceof Error ? err.message : 'Failed to save preferences');
@@ -95,6 +149,12 @@ export const usePreferences = () => {
   // Initialize preferences on mount
   useEffect(() => {
     loadPreferences();
+
+    // Cleanup on unmount
+    return () => {
+      if (autoLogoutTimer) clearTimeout(autoLogoutTimer);
+      if (countdownTimer) clearInterval(countdownTimer);
+    };
   }, []);
 
   return {
@@ -103,5 +163,8 @@ export const usePreferences = () => {
     error,
     savePreferences,
     verifyPin,
+    isAutoLogoutActive,
+    autoLogoutCountdown,
+    cancelAutoLogout,
   };
 };
