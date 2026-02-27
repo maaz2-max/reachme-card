@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 97%;
+    --background: 220 20% 96%;
     --foreground: 220 40% 13%;
 
     --card: 0 0% 100%;
@@ -18,10 +18,10 @@
     --primary: 220 65% 28%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 20% 92%;
+    --secondary: 220 25% 93%;
     --secondary-foreground: 220 40% 13%;
 
-    --muted: 220 14% 92%;
+    --muted: 220 14% 90%;
     --muted-foreground: 220 10% 46%;
 
     --accent: 0 78% 55%;
@@ -30,22 +30,23 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 88%;
+    --border: 220 20% 90%;
     --input: 220 13% 88%;
     --ring: 220 65% 28%;
 
-    --radius: 14px;
+    --radius: 16px;
 
     /* Custom tokens */
     --navy: 220 65% 28%;
-    --navy-deep: 220 65% 18%;
+    --navy-deep: 220 65% 15%;
     --navy-light: 220 40% 40%;
     --whatsapp: 142 70% 38%;
     --whatsapp-glow: 142 70% 45%;
     --call: 220 65% 28%;
     --call-glow: 220 55% 40%;
-    --glass: 220 30% 96%;
-    --glass-border: 220 20% 85%;
+    --glass: 220 30% 98%;
+    --glass-border: 220 25% 88%;
+    --glass-shadow: 220 40% 13%;
     --shimmer: 220 40% 50%;
 
     --sidebar-background: 0 0% 97%;
