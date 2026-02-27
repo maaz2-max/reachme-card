@@ -6,7 +6,7 @@ import WarningModal from "@/components/WarningModal";
 import PinModal from "@/components/PinModal";
 import SettingsPanel from "@/components/SettingsPanel";
 import EmergencyContacts from "@/components/EmergencyContacts";
-import { supabase } from "@/integrations/supabase/client";
+import { fetchShowDetails } from "@/lib/supabase-safe";
 
 type ModalAction = { type: "call" | "whatsapp"; number: string } | null;
 
