@@ -42,17 +42,8 @@ const SettingsPanel = ({ open, onClose, onToggle, currentState }: SettingsPanelP
   const handleToggle = async () => {
     setLoading(true);
     const newState = !currentState;
-    // Immediate UI update
     onToggle(newState);
-    // Save to Cloud in background
-    try {
-      await supabase
-        .from("vehicle_settings")
-        .update({ show_details: newState, updated_at: new Date().toISOString() })
-        .eq("id", 1);
-    } catch (err) {
-      console.error("Failed to save settings:", err);
-    }
+    await updateShowDetails(newState);
     setLoading(false);
   };
 
