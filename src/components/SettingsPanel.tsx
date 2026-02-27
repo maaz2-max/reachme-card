@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Settings, Eye, EyeOff, X, Timer } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { updateShowDetails } from "@/lib/supabase-safe";
 
 interface SettingsPanelProps {
   open: boolean;
@@ -42,17 +42,8 @@ const SettingsPanel = ({ open, onClose, onToggle, currentState }: SettingsPanelP
   const handleToggle = async () => {
     setLoading(true);
     const newState = !currentState;
-    // Immediate UI update
     onToggle(newState);
-    // Save to Cloud in background
-    try {
-      await supabase
-        .from("vehicle_settings")
-        .update({ show_details: newState, updated_at: new Date().toISOString() })
-        .eq("id", 1);
-    } catch (err) {
-      console.error("Failed to save settings:", err);
-    }
+    await updateShowDetails(newState);
     setLoading(false);
   };
 
